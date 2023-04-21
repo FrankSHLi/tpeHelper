@@ -106,10 +106,10 @@ class tagHelper(apiHelper):
     def set_callback(self, callback):
         self._callback = callback
 
-    def subscribe_tags(self, tag_list):
+    def set_tags(self, tag_list):
         self._tag_list = tag_list
 
-    def start(self, stream=True, interval=0, userdata=None):
+    def start_stream(self, interval=0, userdata=None):
         self._userdata = userdata
         for provider in self._tag_list:
             for source in self._tag_list[provider]:
@@ -120,20 +120,30 @@ class tagHelper(apiHelper):
                     else:
                         params['tags'] = params['tags'] + ',' + tag
                 endpoint = '/tags/monitor/' + provider + '/' + source
-                if stream == True:
-                    if interval == 0:
-                        params['onChanged'] = 'true'
-                    elif interval != 0:
-                        params['streamInterval'] = interval
-                    self._process_pool.append(multiprocessing.Process(target=self.do_work, args=(endpoint, params)))
-                else:
-                    self.do_work(endpoint, params)
+                if interval == 0:
+                    params['onChanged'] = 'true'
+                elif interval != 0:
+                    params['streamInterval'] = interval
+                self._process_pool.append(multiprocessing.Process(target=self.do_work, args=(endpoint, params)))
         for process in self._process_pool:
             process.start()
 
-
-    def stop(self):
+    def stop_stream(self):
         for process in self._process_pool:
             process.terminate()
             process.join()
         self._process_pool.clear()
+
+    def get_tag_values(self, userdata=None):
+        self._userdata = userdata
+        for provider in self._tag_list:
+            for source in self._tag_list[provider]:
+                params = {}
+                for tag in self._tag_list[provider][source]:
+                    if not 'tags' in params:
+                        params['tags'] = tag
+                    else:
+                        params['tags'] = params['tags'] + ',' + tag
+                endpoint = '/tags/monitor/' + provider + '/' + source
+                self.do_work(endpoint, params)
+

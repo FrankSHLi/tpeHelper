@@ -1,8 +1,6 @@
 import json, time
 from tpeHelper import tagHelper, apiHelper
 
-tpe = None
-
 def process_tag(data, userdata):
     print(time.strftime('%Y/%m/%d %H:%M:%S') + ' ' + str(userdata) + '; ' + data + '\n')
 
@@ -19,28 +17,28 @@ if __name__ == '__main__':
             print('--- Streaming by Interval ---')
             print('Time: ' + time.strftime('%Y/%m/%d %H:%M:%S') + '\n')
             tag_list = json.loads('{"system":{"status":["cpuSystem","memoryTotal"],"network":["lan1NetworkUsage"]},"modbus_tcp_master":{"tcp_simulator":["tag"]}}')
-            tagHelper1.subscribe_tags(tag_list)
-            tagHelper2.subscribe_tags(tag_list)
-            tagHelper1.start(stream=True, interval=20000, userdata='[1] Streaming, interval = 20000ms')
-            tagHelper2.start(stream=True, interval=10000, userdata='[2] Streaming, interval = 10000ms')
+            tagHelper1.set_tags(tag_list)
+            tagHelper2.set_tags(tag_list)
+            tagHelper1.start_stream(interval=20000, userdata='[1] Streaming, interval = 20000ms')
+            tagHelper2.start_stream(interval=10000, userdata='[2] Streaming, interval = 10000ms')
         if i == 45:
             print('--- Streaming on Change ---')
             print('Time: ' + time.strftime('%Y/%m/%d %H:%M:%S') + '\n')
-            tagHelper1.stop()
-            tagHelper2.stop()
+            tagHelper1.stop_stream()
+            tagHelper2.stop_stream()
             tag_list = json.loads('{"system":{"status":["cpuUsage","memoryUsage"],"network":["lan2NetworkUsage"]},"modbus_tcp_master":{"tcp_simulator":["tag"]}}')
-            tagHelper1.subscribe_tags(tag_list)
-            tagHelper2.subscribe_tags(tag_list)
-            tagHelper1.start(stream=True, userdata='[1] Streaming, update on change')
-            tagHelper2.start(stream=True, userdata='[2] Streaming, update on change')
+            tagHelper1.set_tags(tag_list)
+            tagHelper2.set_tags(tag_list)
+            tagHelper1.start_stream(userdata='[1] Streaming, update on change')
+            tagHelper2.start_stream(userdata='[2] Streaming, update on change')
         if i == 120:
             print('--- Get Latest Value by Request ---')
             print('Time: ' + time.strftime('%Y/%m/%d %H:%M:%S') + '\n')
-            tagHelper1.stop()
-            tagHelper2.stop()
+            tagHelper1.stop_stream()
+            tagHelper2.stop_stream()
         if i >= 120 and i < 130:
-            tagHelper1.start(stream=False, userdata='[1] Get latest value from tag hub')
-            tagHelper2.start(stream=False, userdata='[2] Get latest value from tag hub')
+            tagHelper1.get_tag_values(userdata='[1] Get latest value from tag hub')
+            tagHelper2.get_tag_values(userdata='[2] Get latest value from tag hub')
         if i == 130:
             break
         time.sleep(1)
