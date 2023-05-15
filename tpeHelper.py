@@ -147,3 +147,19 @@ class tagHelper(apiHelper):
                 endpoint = '/tags/monitor/' + provider + '/' + source
                 self.do_work(endpoint, params)
 
+    def set_tag_value(self, provider, source, tag, data_type, value):
+        cmd_url = self._tpe_url_prefix + '/tags/publish'
+        payload = {}
+        payload['prvdName'] = provider
+        payload['srcName'] = source
+        payload['tagName'] = tag
+        payload['dataType'] = data_type
+        payload['dataValue'] = value
+        try:
+            with requests.post(cmd_url, headers=self._headers, data=json.dumps(payload)) as response:
+                result = {}
+                result['message'] = response.text
+                result['status'] = response.status_code
+        except Exception as e:
+            print(time.strftime('%Y/%m/%d %H:%M:%S') + ' Exception: ' + str(e))
+            return str(e)
